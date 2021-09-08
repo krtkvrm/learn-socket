@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Chat Example</title>
+    <script type="text/javascript">
+        var conn;
+        window.onload = function () {
+            if (window["WebSocket"]) {
+                conn = new WebSocket("ws://localhost:8080/claps");
+                conn.onmessage = function (evt) {
+                    var messages = evt.data.split('\n');
+                    document.getElementById("clapTxt").innerHTML = "Claps: "+ messages;
+                };
+            } else {
+                window.alert("Your browser does not support WebSockets.");
+            }
+        };
+        function getUpdatedClap() {
+            conn.send("c");
+        }
+    </script>
+</head>
+<body>
+Click Img<br>
+<img onclick="getUpdatedClap()" src="https://avatars.slack-edge.com/2017-02-16/141907577648_f5409e64ce3b77854d6a_512.png" width="100" height="100">
+<p id="clapTxt"></p>
+</body>
+</html>
