@@ -39,15 +39,11 @@ func main() {
 
 	statsdClient, _ = statsd.New("0.0.0.0:8125")
 
-	ticker := time.NewTicker(500 * time.Millisecond)
-
 	go func() {
 		for {
-			select {
-			case <-ticker.C:
-				statsdClient.Count("claps", int64(claps), []string{}, 0)
-				statsdClient.Count("clients", int64(clients), []string{}, 0)
-			}
+			statsdClient.Count("claps", int64(claps), []string{}, 0)
+			statsdClient.Count("clients", int64(clients), []string{}, 0)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
