@@ -10,6 +10,7 @@ import (
 )
 
 var claps = 0
+var clients = 0
 
 var (
 	newline = []byte{'\n'}
@@ -44,11 +45,15 @@ func run() {
 		select {
 		case client := <-hub.addClient:
 			hub.clients[client] = true
+			clients++
+			fmt.Printf("Clients = %d\n", clients)
 		case client := <-hub.removeClient:
 			if _, ok := hub.clients[client]; ok {
 				delete(hub.clients, client)
 				close(client.messages)
 			}
+			clients--
+			fmt.Printf("Clients = %d\n", clients)
 		case message := <-hub.broadcast:
 			for client := range hub.clients {
 				select {

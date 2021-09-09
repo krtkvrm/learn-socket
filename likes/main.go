@@ -3,10 +3,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/DataDog/datadog-go/statsd"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"time"
 )
+
+var statsdClient *statsd.Client
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -32,6 +36,22 @@ func serveClapWS(w http.ResponseWriter, r *http.Request) {
 func main() {
 	newCore()
 	go run()
+
+	statsdClient, _ = statsd.New("0.0.0.0:8125")
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				statsdClient.Count("claps", int64(claps), []string{}, 0)
+				statsdClient.Count("clients", int64(clients), []string{}, 0)
+			}
+		}
+	}()
+
+
 	http.HandleFunc("/ping", func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Fprintf(writer, "pong")
 	})
